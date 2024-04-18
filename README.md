@@ -75,3 +75,4 @@ bun run preview
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
 # elite-euro-app
 # elite-euro-app
+# elite-euro-app
