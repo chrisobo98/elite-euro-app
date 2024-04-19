@@ -1,34 +1,50 @@
 <template>
-  <aside class="w-64 bg-white bg-opacity-95 fixed top-4 bottom-8 left-0 shadow-2xl" style="border-radius: 50px;">
-    <div class="px-8 py-8">
-      <h2 class="text-2xl font-semibold text-black">Elite Euro App</h2>
-    </div>
-    <nav class="mt-10">
-      <NuxtLink
-        to="/garage"
-        class="block py-2.5 px-8 rounded-xl hover:bg-apple-gray text-black flex transition-colors"
-      >
-      <WrenchScrewdriverIcon class="h-5 w-5 mr-2 text-gray-black" alt="Scanner Icon" />
-        My Garage
-      </NuxtLink>
-
-      <NuxtLink
-        to="/maintenance"
-        class="block py-2.5 px-8 rounded-xl hover:bg-apple-gray flex text-black transition-colors"
-      >
-      <DocumentTextIcon class="h-5 w-5 mr-2 text-gray-black" alt="Scanner Icon" />
-        Maintenance
-      </NuxtLink>
-
-      <NuxtLink
+  <div class="px-8 py-8">
+    <h2 class="text-2xl font-semibold text-black hidden lg:block">Elite Euro App</h2>
+  </div>
+  <nav class="mt-10 px-2">
+    <!-- Home -->
+    <NuxtLink
         to="/"
-        class="block py-2.5 px-8 rounded-xl hover:bg-apple-gray text-black flex transition-colors"
+        class="flex items-center justify-center lg:justify-start hover:bg-apple-gray px-3 py-3 rounded-xl transition-colors"
       >
-      <TruckIcon class="h-5 w-5 mr-2 text-gray-black" alt="Scanner Icon" />
-        My Vehicles
+        <HomeIcon class="h-5 w-5 text-gray-black" alt="Home" />
+        <span class="ml-2 hidden lg:inline">Home</span>
       </NuxtLink>
-    </nav>
-  </aside>
+
+    <!-- Garage -->
+    <NuxtLink
+      to="/garage"
+      class="flex items-center justify-center lg:justify-start hover:bg-apple-gray px-3 py-3 rounded-xl transition-colors"
+    >
+      <WrenchScrewdriverIcon
+        class="h-5 w-5 text-gray-black"
+        alt="Scanner Icon"
+      />
+      <span class="ml-2 hidden lg:inline">My Garage</span>
+    </NuxtLink>
+
+    <!-- Maintenance -->
+    <NuxtLink
+      to="/maintenance"
+      class="flex items-center justify-center lg:justify-start hover:bg-apple-gray px-3 py-3 rounded-xl transition-colors"
+    >
+      <DocumentTextIcon
+        class="h-5 w-5 text-gray-black"
+        alt="Scanner Icon"
+      />
+      <span class="ml-2 hidden lg:inline">Maintenance</span>
+    </NuxtLink>
+
+    <!-- Vehicles -->
+    <NuxtLink
+      to="/vehicles"
+      class="flex items-center justify-center lg:justify-start hover:bg-apple-gray px-3 py-3 rounded-xl transition-colors"
+    >
+      <TruckIcon class="h-5 w-5 text-gray-black" alt="Scanner Icon" />
+      <p class="ml-2 hidden lg:inline">My Vehicles</p>
+    </NuxtLink>
+  </nav>
 </template>
 
 <script setup>
@@ -36,6 +52,18 @@ import {
   ViewfinderCircleIcon,
   WrenchScrewdriverIcon,
   DocumentTextIcon,
-  TruckIcon
+  TruckIcon,
+  HomeIcon,
 } from "@heroicons/vue/24/solid";
 </script>
+
+<style scoped>
+@media (max-width: 1023px) {
+  h2 {
+    display: none;
+  }
+  .nuxt-link {
+    justify-content: center;
+  }
+}
+</style>
