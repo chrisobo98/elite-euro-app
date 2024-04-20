@@ -7,20 +7,20 @@
 
     <!-- Side Nav -->
     <aside
-      class="fixed top-4 bottom-4 left-4 w-auto lg:w-64 bg-white bg-opacity-95 shadow-2xl"
+      class="fixed top-4 bottom-4 left-4 w-auto lg:w-64 bg-white shadow-2xl"
       style="border-radius: 50px"
     >
       <Sidebar />
     </aside>
 
     <!-- Content area -->
-    <div class="flex flex-col flex-grow pl-20 lg:pl-64">
-      <main class="pt-20 flex-grow overflow-auto mx-8 my-8 pl-12">
+    <div class="flex flex-col flex-grow pl-8 lg:pl-56">
+      <main class="pt-20 flex-grow overflow-auto pl-12">
         <NuxtPage />
       </main>
 
       <!-- Footer: Fixed at the bottom -->
-      <footer class="flex justify-end h-8 mx-4 my-4 lg:my-4">
+      <footer class="flex justify-end h-8 mx-4 my-4">
         <span class="text-black">© 2024 Elite Euro Motors. Made with ❤️ in Orlando, FL.</span>
       </footer>
     </div>

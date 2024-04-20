@@ -1,9 +1,9 @@
 <template>
     <div
       :class="[
-        'p-6 rounded-xl transition-all duration-300 ease-in-out',
+        'p-6 rounded-xl mx-4 my-4 transition-all duration-300 ease-in-out',
         useShadow ? 'shadow-2xl' : '',
-        `bg-${backgroundColor}-100`,
+        `bg-white`,
       ]"
       :style="{ opacity: transparent ? '0.9' : '1' }"
     >
