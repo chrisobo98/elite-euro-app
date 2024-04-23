@@ -52,6 +52,7 @@
 
 <script setup>
 import BaseCard from "@/components/Base/BaseCard.vue";
+import {
   DocumentTextIcon,
   TruckIcon,
 } from "@heroicons/vue/24/solid";

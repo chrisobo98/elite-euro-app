@@ -3,7 +3,7 @@
       :class="[
         'p-6 rounded-xl mx-4 my-4 transition-all duration-300 ease-in-out',
         useShadow ? 'shadow-2xl' : '',
-        `bg-white`,
+        `bg-white h-auto`,
       ]"
       :style="{ opacity: transparent ? '0.9' : '1' }"
     >
