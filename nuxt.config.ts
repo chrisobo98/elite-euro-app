@@ -2,10 +2,12 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: [
-    // ...
-    '@nuxt/eslint',
-    'nuxt-primevue',
-    // ...
+  // ...
+  '@nuxt/eslint', 
+  'nuxt-primevue', 
+  "@nuxtjs/supabase",
+  '@nuxtjs/supabase'
+  // ...
   ],
   css: [
     '~/assets/css/main.css',
@@ -15,6 +17,14 @@ export default defineNuxtConfig({
   ],
   primevue: {
     cssLayerOrder: 'tailwind-base, primevue, tailwind-utilities',
+  },
+  supabase: {
+    redirectOptions: {
+      login: '/login',
+      callback: '/confirm',
+      include: undefined,
+      exclude: ['/register', '/login'],
+    }  
   },
   postcss: {
     plugins: {

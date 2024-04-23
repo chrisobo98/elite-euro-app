@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen bg-apple-gray overflow-hidden">
+  <div v-if="user" class="flex h-screen bg-apple-gray overflow-hidden">
     <!-- Navbar -->
     <header class="fixed top-0 right-0 left-24 lg:left-64 h-20">
       <Navbar />
@@ -25,11 +25,14 @@
       </footer>
     </div>
   </div>
+  <NuxtPage v-else />
 </template>
 
 <script setup lang="ts">
 import Navbar from "~/components/Layout/Navbar.vue";
 import Sidebar from "~/components/Layout/Sidebar.vue";
+
+const user = useSupabaseUser()
 </script>
 
 <style>

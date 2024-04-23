@@ -1,6 +1,7 @@
 <template>
   <div class="space-y-4">
     <h1 class="text-3xl font-bold ml-4">My Profile</h1>
+
     <!-- Profile Picture and Edit Card -->
     <BaseCard>
       <div class="flex flex-col sm:flex-row items-center justify-between">
@@ -9,26 +10,38 @@
         >
           <img
             class="inline-block h-24 w-24 rounded-full ring-2 ring-white mx-auto sm:mx-0"
-            src="https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+            src="https://i.ibb.co/TLxgMwW/T03-E1-AWDP-UF2-JJNFRS-f53e19ccd891-512.jpg"
             alt=""
           />
           <div class="mt-4 sm:mt-0">
-            <h2 class="text-xl font-semibold">Rafiqur Rahman</h2>
-            <p class="text-gray-600">Team Manager</p>
-            <p class="text-gray-500">Leeds, United Kingdom</p>
+            <h2 class="text-xl font-semibold">Christopher Bermudez</h2>
+            <p class="text-gray-600">Elite Euro Motors</p>
+            <p class="text-gray-500">Ocoee, Florida</p>
           </div>
         </div>
         <div class="mt-4 sm:mt-0">
-          <button
-            v-if="!editMode"
-            class="flex items-center text-blue-black"
-            @click="editMode = true"
-          >
-            <PencilSquareIcon class="h-5 w-5" />
-            Edit
-          </button>
+          <div v-if="!editMode" class="grid grid-cols-2">
+            <!-- Edit Button -->
+            <button
+              v-if="!editMode"
+              class="flex items-center text-blue-black"
+              @click="editMode = true"
+            >
+              <PencilSquareIcon class="h-5 w-5" />
+              Edit
+            </button>
+
+            <!-- Login Button -->
+            <BaseButton
+              type="submit"
+              @click="signOut"
+              class="col-span-1 my-3"
+              :label="loading ? 'Loading' : 'Logout'"
+              :disabled="loading"
+            />
+          </div>
           <!-- Save and Cancel Buttons -->
-          <div v-else class="grid gap-4 grid-cols-1 sm:grid-cols-2">
+          <div v-else class="grid gap-4 lg:grid-cols-1 grid-cols-2">
             <BaseButton
               @click="saveProfile"
               label="Save"
@@ -36,7 +49,7 @@
               type="submit"
             />
             <BaseButton
-              @click="cancelEdit"
+              @click="saveProfile"
               label="Cancel"
               icon="x-mark"
               type="reset"
@@ -88,6 +101,8 @@ import { camelCaseToTitleCase } from "@/utils/utils.js";
 import { PencilSquareIcon } from "@heroicons/vue/24/solid";
 import { ref, reactive } from "vue";
 
+const supabase = useSupabaseClient();
+
 const editMode = ref(false);
 const personalInfo = reactive({
   firstName: "John",
@@ -105,6 +120,11 @@ const addressInfo = reactive({
 
 function toggleEdit() {
   editMode.value = !editMode.value;
+}
+
+async function signOut() {
+  const { error } = await supabase.auth.signOut();
+  await navigateTo({ path: "/login" });
 }
 
 function updatePersonalInfo(field, value) {
