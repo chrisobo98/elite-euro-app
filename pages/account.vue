@@ -14,9 +14,9 @@
             alt=""
           />
           <div class="mt-4 sm:mt-0">
-            <h2 class="text-xl font-semibold">Christopher Bermudez</h2>
-            <p class="text-gray-600">Elite Euro Motors</p>
-            <p class="text-gray-500">Ocoee, Florida</p>
+            <h2 class="text-xl font-semibold">{{ personalInfo.fullName }}</h2>
+            <p class="text-gray-600">{{ personalInfo.email }}</p>
+            <p class="text-gray-500">{{ addressInfo.city }}, {{ addressInfo.state }} </p>
           </div>
         </div>
         <div class="mt-4 sm:mt-0">
@@ -43,13 +43,13 @@
           <!-- Save and Cancel Buttons -->
           <div v-else class="grid gap-4 lg:grid-cols-1 grid-cols-2">
             <BaseButton
-              @click="saveProfile"
+              @click="updateProfile"
               label="Save"
               icon="check"
               type="submit"
             />
             <BaseButton
-              @click="saveProfile"
+              @click="editMode = false"
               label="Cancel"
               icon="x-mark"
               type="reset"
@@ -99,24 +99,60 @@ import BaseButton from "@/components/Base/BaseButton.vue";
 import EditableField from "@/components/Base/EditableField.vue";
 import { camelCaseToTitleCase } from "@/utils/utils.js";
 import { PencilSquareIcon } from "@heroicons/vue/24/solid";
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted } from "vue";
 
 const supabase = useSupabaseClient();
+const user = useSupabaseUser().value;
 
 const editMode = ref(false);
 const personalInfo = reactive({
-  firstName: "John",
-  lastName: "Doe",
-  role: "Developer",
-  email: "john@example.com",
-  phone: "+123456789",
+  // Assume these are bound to form inputs
+  username: "",
+  fullName: "",
+  email: user.email, // email is typically not editable
+  website: "",
+  avatar_url: "",
 });
 const addressInfo = reactive({
-  country: "USA",
-  city: "Clermont",
-  state: "Florida",
-  address: "3241 Weltzer Lane",
+  country: "",
+  city: "",
+  state: "",
+  address: "",
 });
+
+onMounted(async () => {
+  if (user) {
+    await fetchProfile();
+  }
+});
+async function fetchProfile() {
+  try {
+    let { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id) // Make sure to only fetch the profile of the logged-in user.
+      .single(); // Ensures that only one record is returned (or null if not found).;
+    if (error) throw error;
+
+    if (data) {
+      // Assign data to the reactive objects
+      personalInfo.username = data.username || "";
+      personalInfo.fullName = data.full_name || "";
+      personalInfo.website = data.website || "";
+      personalInfo.avatar_url = data.avatar_url || "";
+      
+      // Address Info
+      addressInfo.country = data.country || "";
+      addressInfo.city = data.city || "";
+      addressInfo.state = data.state || "";
+      addressInfo.address = data.address || "";
+    }
+  } catch (error) {
+    console.log(error);
+  } finally {
+    console.log("loading done");
+  }
+}
 
 function toggleEdit() {
   editMode.value = !editMode.value;
@@ -135,10 +171,28 @@ function updateAddressInfo(field, value) {
   addressInfo[field] = value;
 }
 
-function saveProfile() {
-  console.log("Profile data to save:", personalInfo);
-  // Here we send a request to backend to update the user profile
-  editMode.value = false;
+async function updateProfile() {
+  try {
+    const updates = {
+      id: user.id,
+      username: personalInfo.username,
+      full_name: personalInfo.fullName,
+      website: personalInfo.website,
+      avatar_url: personalInfo.avatar_url,
+      country: addressInfo.country,
+      city: addressInfo.city,
+      state: addressInfo.state,
+      address: addressInfo.address,
+      updated_at: new Date(),
+    };
+    const { error } = await supabase.from("profiles").upsert(updates, {
+      returning: "minimal", // Don't return the updated values
+    });
+    if (error) throw error;
+    editMode.value = false;
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 // A method to get a display name from a camelCase string
