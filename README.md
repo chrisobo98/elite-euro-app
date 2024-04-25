@@ -1,4 +1,8 @@
-Welcome to the Elite Euro Motors App, thank you for swinging on by to take a lookie loo. 👀
+# Welcome to the Elite Euro Motors App 
+
+Thank you for swinging on by to take a lookie loo. 👀
+
+This app is a digital inspection and vehicle management tool tailored for our auto shop, designed to modernize customer interactions and enhance our service offerings. It allows customers to engage with our services in a modern, digital format, providing a platform for them to view and manage their vehicle profiles, track maintenance history, and even check vehicle details through VIN decoding. Built with robust Supabase integration for secure data management and Axios for seamless external API interactions, the app ensures that vehicle specifications are auto-filled and relevant images are fetched dynamically. Ideal for enhancing customer experience, this app serves as a digital bridge between our auto shop and customers, facilitating efficient management and transparency in vehicle servicing and inspections.
 
 Visit https://eliteeuromotors.netlify.app/account to be able to view our app (Thank you Netlify ❤️)
 
@@ -8,7 +12,7 @@ Now comes the fun. 😈
 
 Below are some patch notes, eventually I'll have these on the app or the Elite Euro Motors website which you should also take a look at! 
 
-eliteeuromotors.com 🏎️
+https://eliteeuromotors.com 🏎️
 
 # Release Version 1.2 - Patch Notes
 ## Major Features and Enhancements
