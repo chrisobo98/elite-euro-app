@@ -28,12 +28,12 @@
       <BaseCard class="space-y-4 col-span-1 lg:col-span-2">
         <h2 class="text-lg font-semibold">Vehicle Details</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <InputText placeholder="Make" v-model="vehicleDetails.make" />
-          <InputText placeholder="Model" v-model="vehicleDetails.model" />
-          <InputText placeholder="Year" v-model="vehicleDetails.year" />
+          <InputText placeholder="Make" v-model="vehicleDetails.Make" />
+          <InputText placeholder="Model" v-model="vehicleDetails.Model" />
+          <InputText placeholder="Year" v-model="vehicleDetails.ModelYear" />
           <!-- File Upload for Vehicle Images -->
           <div class="md:col-span-2">
-            <FileUpload />
+            <!-- <FileUpload @image-uploaded="handleImageUploaded" /> -->
           </div>
           <BaseButton
             label="Save Vehicle"
@@ -52,7 +52,7 @@
             :key="vehicle.id"
             class="flex justify-between items-center p-4 border rounded-lg my-2 py-2"
           >
-            {{ vehicle.make }} {{ vehicle.model }} - {{ vehicle.year }}
+            <span @click="selectVehicle(vehicle)" style="cursor: pointer;">{{ vehicle.make }} {{ vehicle.model }} - {{ vehicle.year }}</span>
             <button
               @click="confirmDelete(vehicle.id)"
               class="rounded bg-red-500 hover:bg-red-700 text-white p-1"
@@ -62,6 +62,28 @@
           </li>
         </ul>
       </BaseCard>
+
+      <!-- Vehicle Details Modal -->
+      <Dialog
+        v-model:visible="vehicleModalVisible"
+        :modal="true"
+        header="Vehicle Details"
+      >
+        <div v-if="selectedVehicle">
+          <ul>
+            <li v-for="(value, key) in selectedVehicle" :key="key">
+              <strong
+                >{{
+                  key.replace(/_/g, " ").replace(/(?:^|\s)\S/g, function (a) {
+                    return a.toUpperCase();
+                  })
+                }}:</strong
+              >
+              {{ value || "N/A" }}
+            </li>
+          </ul>
+        </div>
+      </Dialog>
 
       <!-- Delete Confirmation Dialog -->
       <Dialog
@@ -109,12 +131,16 @@ import axios from "axios";
 
 const user = useSupabaseUser().value;
 const supabase = useSupabaseClient();
-const value = ref(null);
-
+// const imageUrl = ref('');
+const vehicleModalVisible = ref(false);
+const selectedVehicle = ref(null);
+const deleteDialogVisible = ref(false);
+const deleteConfirmationText = ref("");
+const vehicleToDelete = ref(null);
 const vehicles = ref([]);
-const vehicleModel = ref("");
 const vehicleVIN = ref("");
 const vinValid = ref(false);
+
 const vehicleDetails = reactive({
   make: "",
   model: "",
@@ -162,6 +188,11 @@ onMounted(async () => {
   await fetchVehicles();
 });
 
+// const handleImageUploaded = (imageUrl) => {
+//   console.log("Received image URL:", imageUrl);
+//   imageUrl.value = url;  // Store the received URL in the reactive property
+// }
+
 async function fetchVehicles() {
   const { data, error } = await supabase
     .from("vehicles")
@@ -192,53 +223,18 @@ const checkVIN = async () => {
     if (response.data) {
       // Response data from checkVIN API
       const spec = response.data.data;
+      Object.keys(spec).forEach((key) => {
+        vehicleDetails[key] = spec[key];
+      });
 
-      vehicleDetails.make = spec.Make;
-      vehicleDetails.model = spec.Model;
-      vehicleDetails.year = spec.ModelYear;
-      vehicleDetails.air_bag_loc_curtain = spec.AirBagLocCurtain;
-      vehicleDetails.air_bag_loc_front = spec.AirBagLocFront;
-      vehicleDetails.air_bag_loc_side = spec.AirBagLocSide;
-      vehicleDetails.body_class = spec.BodyClass;
-      vehicleDetails.displacement_cc = spec.DisplacementCC;
-      vehicleDetails.displacement_ci = spec.DisplacementCI;
-      vehicleDetails.displacement_l = spec.DisplacementL;
-      vehicleDetails.doors = spec.Doors;
-      vehicleDetails.drive_type = spec.DriveType;
-      vehicleDetails.engine_configuration = spec.EngineConfiguration;
-      vehicleDetails.engine_cylinders = spec.EngineCylinders;
-      vehicleDetails.engine_hp = spec.EngineHP;
-      vehicleDetails.engine_kw = spec.EngineKW;
-      vehicleDetails.engine_model = spec.EngineModel;
-      vehicleDetails.fuel_type_primary = spec.FuelTypePrimary;
-      vehicleDetails.gvwr = spec.GVWR;
-      vehicleDetails.make = spec.Make;
-      vehicleDetails.make_id = spec.MakeID;
-      vehicleDetails.manufacturer = spec.Manufacturer;
-      vehicleDetails.manufacturer_id = spec.ManufacturerId;
-      vehicleDetails.model = spec.Model;
-      vehicleDetails.model_id = spec.ModelID;
-      vehicleDetails.model_year = spec.ModelYear;
-      vehicleDetails.other_restraint_system_info =
-        spec.OtherRestraintSystemInfo;
-      vehicleDetails.plant_city = spec.PlantCity;
-      vehicleDetails.plant_country = spec.PlantCountry;
-      vehicleDetails.plant_state = spec.PlantState;
-      vehicleDetails.seat_belts_all = spec.SeatBeltsAll;
-      vehicleDetails.series = spec.Series;
-      vehicleDetails.tpms = spec.TPMS;
-      vehicleDetails.transmission_style = spec.TransmissionStyle;
-      vehicleDetails.vin = spec.VIN;
-      vehicleDetails.valve_train_design = spec.ValveTrainDesign;
-      vehicleDetails.vehicle_descriptor = spec.VehicleDescriptor;
-      vehicleDetails.vehicle_type = spec.VehicleType;
+      vinValid.value = true; // VIN is valid
 
-      vinValid.value = true; // Set to true if VIN is valid
+      // Ensure we have the necessary details to form a valid search string
+      const make = vehicleDetails.Make || "Unknown Make";
+      const model = vehicleDetails.Model || "Unknown Model";
+      const year = vehicleDetails.ModelYear || "Unknown Year";
+      const vehicleString = `Transparent ${make} ${model} ${year}`;
 
-      // Vehicle String that formats google search
-      const vehicleString = `Transparent ${vehicleDetails.make} ${vehicleDetails.model} ${vehicleDetails.year}`;
-
-      // Google image search
       const imageOptions = {
         method: "POST",
         url: "https://google-api31.p.rapidapi.com/imagesearch",
@@ -261,11 +257,10 @@ const checkVIN = async () => {
       };
 
       const imageResponse = await axios.request(imageOptions);
-
-      vehicleDetails.vehicle_image = imageResponse.data.result[0].image || null;
+      vehicleDetails.vehicle_image =
+        imageResponse.data.result?.[0]?.image || null;
     } else {
-      // Handle the case where the VIN is not valid
-      vinValid.value = false;
+      vinValid.value = false; // VIN is not valid
     }
   } catch (error) {
     console.error(error);
@@ -275,44 +270,44 @@ const checkVIN = async () => {
 async function saveVehicle() {
   try {
     const updates = {
-      id: user.id,
       user_id: user.id,
-      make: vehicleDetails.make,
-      model: vehicleDetails.model,
-      year: vehicleDetails.year,
-      air_bag_loc_curtain: vehicleDetails.air_bag_loc_curtain,
-      air_bag_loc_front: vehicleDetails.air_bag_loc_front,
-      air_bag_loc_side: vehicleDetails.air_bag_loc_side,
-      body_class: vehicleDetails.body_class,
-      displacement_cc: vehicleDetails.displacement_cc,
-      displacement_ci: vehicleDetails.displacement_ci,
-      displacement_l: vehicleDetails.displacement_l,
-      doors: vehicleDetails.doors,
-      drive_type: vehicleDetails.drive_type,
-      engine_configuration: vehicleDetails.engine_configuration,
-      engine_cylinders: vehicleDetails.engine_cylinders,
-      engine_hp: vehicleDetails.engine_hp,
-      engine_kw: vehicleDetails.engine_kw,
-      engine_model: vehicleDetails.engine_model,
-      fuel_type_primary: vehicleDetails.fuel_type_primary,
-      gvwr: vehicleDetails.gvwr,
-      make_id: vehicleDetails.make_id,
-      manufacturer: vehicleDetails.manufacturer,
-      manufacturer_id: vehicleDetails.manufacturer_id,
-      model_id: vehicleDetails.model_id,
-      model_year: vehicleDetails.model_year,
-      other_restraint_system_info: vehicleDetails.other_restraint_system_info,
-      plant_city: vehicleDetails.plant_city,
-      plant_country: vehicleDetails.plant_country,
-      plant_state: vehicleDetails.plant_state,
-      seat_belts_all: vehicleDetails.seat_belts_all,
-      series: vehicleDetails.series,
-      tpms: vehicleDetails.tpms,
-      transmission_style: vehicleDetails.transmission_style,
-      vin: vehicleDetails.vin,
-      valve_train_design: vehicleDetails.valve_train_design,
-      vehicle_descriptor: vehicleDetails.vehicle_descriptor,
-      vehicle_type: vehicleDetails.vehicle_type,
+      make: vehicleDetails.Make,
+      model: vehicleDetails.Model,
+      year: vehicleDetails.ModelYear,
+      air_bag_loc_curtain: vehicleDetails.AirBagLocCurtain,
+      air_bag_loc_front: vehicleDetails.AirBagLocFront,
+      air_bag_loc_side: vehicleDetails.AirBagLocSide,
+      body_class: vehicleDetails.BodyClass,
+      displacement_cc: vehicleDetails.DisplacementCC,
+      displacement_ci: vehicleDetails.DisplacementCI,
+      displacement_l: vehicleDetails.DisplacementL,
+      doors: vehicleDetails.Doors,
+      drive_type: vehicleDetails.DriveType,
+      engine_configuration: vehicleDetails.EngineConfiguration,
+      engine_cylinders: vehicleDetails.EngineCylinders,
+      engine_hp: vehicleDetails.EngineHP,
+      engine_kw: vehicleDetails.EngineKw,
+      engine_model: vehicleDetails.EngineModel,
+      fuel_type_primary: vehicleDetails.FuelTypePrimary,
+      gvwr: vehicleDetails.GVWR,
+      make_id: vehicleDetails.MakeID,
+      manufacturer: vehicleDetails.Manufacturer,
+      manufacturer_id: vehicleDetails.ManufacturerId,
+      model_id: vehicleDetails.ModelID,
+      model_year: vehicleDetails.ModelYear,
+      other_restraint_system_info: vehicleDetails.OtherRestraintSystemInfo,
+      plant_city: vehicleDetails.PlantCity,
+      plant_country: vehicleDetails.PlantCountry,
+      plant_state: vehicleDetails.PlantState,
+      seat_belts_all: vehicleDetails.SeatBeltsAll,
+      series: vehicleDetails.Series,
+      tpms: vehicleDetails.TPMS,
+      transmission_style: vehicleDetails.TransmissionStyle,
+      vin: vehicleDetails.VIN,
+      valve_train_design: vehicleDetails.ValveTrainDesign,
+      vehicle_descriptor: vehicleDetails.VehicleDescriptor,
+      vehicle_type: vehicleDetails.VehicleType,
+      vehicle_image: vehicleDetails.vehicle_image,
     };
 
     const { error } = await supabase.from("vehicles").upsert(updates, {
@@ -326,16 +321,15 @@ async function saveVehicle() {
   }
 }
 
-const deleteDialogVisible = ref(false);
-const deleteConfirmationText = ref("");
-const vehicleToDelete = ref(null);
-
 function confirmDelete(id) {
-  console.log(id)
   vehicleToDelete.value = id;
-  console.log(vehicleToDelete)
   deleteDialogVisible.value = true;
 }
+
+const selectVehicle = (vehicle) => {
+  selectedVehicle.value = vehicle;
+  vehicleModalVisible.value = true;
+};
 
 function cancelDelete() {
   deleteDialogVisible.value = false;
@@ -345,10 +339,12 @@ function cancelDelete() {
 
 async function performDelete() {
   if (deleteConfirmationText.value.toLowerCase() === "delete") {
-    console.log(vehicleToDelete.value)
-    const { error } = await supabase.from("vehicles").delete().match({ id: vehicleToDelete.value });
+    const { error } = await supabase
+      .from("vehicles")
+      .delete()
+      .match({ id: vehicleToDelete.value });
     if (!error) {
-      await fetchVehicles();  // Refetch the vehicles list to update UI
+      await fetchVehicles(); // Refetch the vehicles list to update UI
       cancelDelete();
     } else console.error("Error deleting vehicle:", error);
   }
