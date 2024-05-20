@@ -31,10 +31,6 @@
           <InputText placeholder="Make" v-model="vehicleDetails.Make" />
           <InputText placeholder="Model" v-model="vehicleDetails.Model" />
           <InputText placeholder="Year" v-model="vehicleDetails.ModelYear" />
-          <!-- File Upload for Vehicle Images -->
-          <div class="md:col-span-2">
-            <!-- <FileUpload @image-uploaded="handleImageUploaded" /> -->
-          </div>
           <BaseButton
             label="Save Vehicle"
             @click="saveVehicle"
@@ -122,7 +118,6 @@
 
 <script setup>
 import { ref, reactive, onMounted } from "vue";
-import FileUpload from "~/components/Vehicle/FileUpload.vue";
 import BaseButton from "~/components/Base/BaseButton.vue";
 import BaseCard from "~/components/Base/BaseCard.vue";
 import Dialog from "primevue/dialog";

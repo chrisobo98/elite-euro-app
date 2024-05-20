@@ -21,7 +21,6 @@
           </li>
         </ul>
       </div>
-      <FileUpload class="space-y-4" />
 
       <div class="uploaded-documents">
         <h3 class="text-md font-semibold mb-3">Uploaded Documents</h3>
@@ -52,7 +51,6 @@
 </template>
 
 <script setup>
-import FileUpload from "~/components/Vehicle/FileUpload.vue";
 import Button from "primevue/button";
 import { ref } from "vue";
 
@@ -73,26 +71,3 @@ const deleteDocument = (index) => {
   documents.value.splice(index, 1);
 };
 </script>
-
-<style scoped>
-.file-upload-container {
-  /* Your styles here */
-}
-
-.uploaded-documents {
-  /* Your styles here */
-}
-
-.document-list {
-  list-style: none;
-  padding-left: 0;
-}
-
-.document-name {
-  /* Your styles here */
-}
-
-.document-actions {
-  /* Your styles here */
-}
-</style>
